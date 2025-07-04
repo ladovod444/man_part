@@ -1,0 +1,12 @@
+<div class="{{ app.request.headers.get('X-Requested-With') is not null ? 'd-none' }} d-print-block p-0 w-100">
+
+
+    <div class="text-center w-100" style="min-width: 320px;">
+        <img src='{{ qrcode }}' alt='QR Code' class="w-100"/>
+        <h6 class="w-100 fw-bolder"># {{ item.number }}</h6>
+        <div class="w-100">Количество: <strong>{{ item.quantity }} шт.</strong></div>
+    </div>
+</div>
+
+
+

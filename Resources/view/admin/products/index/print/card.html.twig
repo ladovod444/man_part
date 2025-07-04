@@ -1,0 +1,51 @@
+<tr>
+
+    {# Обложка  #}
+    <td class="vertical-middle">
+        <img
+                src="{{ cdn_image_path(item.product_image, item.product_image_ext, item.product_image_cdn) }}"
+                style="height: 100%; width: 100px;"
+        />
+    </td>
+
+    {# Наименование #}
+    <td class="vertical-middle">
+
+        <div class="d-flex flex-column w-100 p-4">
+            <strong>
+                {{ item.product_name }}
+            </strong>
+            <span>
+                {{ item.product_article }}
+            </span>
+        </div>
+    </td>
+
+    {# Размер #}
+    <td class="vertical-middle">
+        <div class="py-5">
+            {# Значение множественного варианта ТП #}
+            {{ item.product_variation_value|call_twig_func(item.product_variation_reference~'_render') ~
+            item.product_modification_value|call_twig_func(item.product_modification_reference~'_render') }}
+
+            {# Значение торгового предложения #}
+            {{ item.product_offer_value|call_twig_func(item.product_offer_reference~'_render') }}
+
+            {# Постфикс торгового предложения #}
+            {{ item.product_offer_postfix }}
+            {# Постфикс множественного варианта #}
+            {{ item.product_variation_postfix }}
+            {# Постфикс модификации #}
+            {{ item.product_modification_postfix }}
+
+        </div>
+    </td>
+
+    {# Количество #}
+    <td class="vertical-middle">
+        <div class="py-5 text-center">
+            <strong>{{ item.product_total }}</strong> &nbsp; шт.
+        </div>
+    </td>
+
+</tr>
