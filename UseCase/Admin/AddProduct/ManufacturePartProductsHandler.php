@@ -27,14 +27,19 @@ namespace BaksDev\Manufacture\Part\UseCase\Admin\AddProduct;
 
 
 use BaksDev\Core\Entity\AbstractHandler;
+use BaksDev\Core\Messenger\MessageDelay;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Core\Validator\ValidatorCollectionInterface;
 use BaksDev\Files\Resources\Upload\File\FileUploadInterface;
 use BaksDev\Files\Resources\Upload\Image\ImageUploadInterface;
+use BaksDev\Manufacture\Part\Application\Entity\Product\ManufactureApplicationProduct;
+use BaksDev\Manufacture\Part\Application\Type\Id\ManufactureApplicationUid;
 use BaksDev\Manufacture\Part\Entity\Event\ManufacturePartEvent;
 use BaksDev\Manufacture\Part\Entity\ManufacturePart;
 use BaksDev\Manufacture\Part\Entity\Products\ManufacturePartProduct;
 use BaksDev\Manufacture\Part\Messenger\ManufacturePartMessage;
+use BaksDev\Manufacture\Part\Messenger\ManufacturePartProduct\ManufacturePartProductMessage;
+use BaksDev\Manufacture\Part\Messenger\UsersTable\SubUserTableByManufacturePartDefect;
 use BaksDev\Manufacture\Part\Repository\OpenManufacturePartByAction\OpenManufacturePartByActionInterface;
 use BaksDev\Products\Product\Entity\Event\ProductEvent;
 use BaksDev\Users\UsersTable\Entity\Actions\Event\UsersTableActionsEvent;
@@ -107,15 +112,31 @@ final class ManufacturePartProductsHandler extends AbstractHandler
             ]
         );
 
+
         if(!$UsersTableActionsEvent)
         {
-            $uniqid = uniqid('', false);
-            $errorsString = sprintf(
-                'Продукция не соответствует категории производственной партии'
-            );
-            $this->logger->error($uniqid.': '.$errorsString);
 
-            return $uniqid;
+            // Проверить возможно это Произв. партия у которой нет категории но с action 'Производственная заявка'
+            /** @var UsersTableActionsEvent $UsersTableActionsEvent */
+            $UsersTableActionsEvent = $this->getRepository(UsersTableActionsEvent::class)->findOneBy(
+                [
+                    'id' => $ManufacturePartEvent->getAction(),
+                ]
+            );
+
+
+            // Проверить, что это не захардкодженый ID
+            if ($UsersTableActionsEvent->getMain()->getValue()->toString() !== ManufactureApplicationUid::ACTION_ID)
+            {
+
+                $uniqid = uniqid('', false);
+                $errorsString = sprintf(
+                    'Продукция не соответствует категории производственной партии'
+                );
+                $this->logger->error($uniqid.': '.$errorsString);
+
+                return $uniqid;
+            }
         }
 
 
@@ -126,6 +147,7 @@ final class ManufacturePartProductsHandler extends AbstractHandler
         $ManufacturePartProduct = new ManufacturePartProduct($ManufacturePartEvent);
         $ManufacturePartProduct->setEntity($command);
 
+
         /** Валидация всех объектов */
         if($this->validatorCollection->isInvalid())
         {
@@ -135,6 +157,7 @@ final class ManufacturePartProductsHandler extends AbstractHandler
         $this->persist($ManufacturePartProduct);
         $this->flush();
 
+        
         /* Отправляем сообщение в шину */
         $this->messageDispatch
             ->addClearCacheOther('wildberries-manufacture')

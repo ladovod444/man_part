@@ -88,12 +88,8 @@ final class NewController extends AbstractController
                 return $this->redirectToReferer();
             }
 
-            // TODO
-            dd($ManufacturePartDTO);
 
             $handle = $ManufacturePartHandler->handle($ManufacturePartDTO);
-
-//            dd($handle);
 
             $this->addFlash
             (

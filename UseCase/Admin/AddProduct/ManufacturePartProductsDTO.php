@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Manufacture\Part\UseCase\Admin\AddProduct;
 
+use BaksDev\Manufacture\Part\Application\Type\Event\ManufactureApplicationEventUid;
 use BaksDev\Manufacture\Part\Entity\Products\ManufacturePartProductInterface;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
@@ -67,6 +68,14 @@ final class ManufacturePartProductsDTO implements ManufacturePartProductInterfac
      */
     #[Assert\Uuid]
     private ?ProductModificationUid $modification = null;
+
+
+   /**
+     * Идентификатор События Производственной заявки
+     */
+    #[Assert\Uuid]
+    private ?ManufactureApplicationEventUid $manufacture_application_product_event = null;
+
 
     /**
      * Количество данного товара в заявке
@@ -181,6 +190,19 @@ final class ManufacturePartProductsDTO implements ManufacturePartProductInterfac
     {
         $this->modification = $modification;
         return $this;
+    }
+
+    public function setManufactureApplicationProductEvent(
+        ?ManufactureApplicationEventUid $manufacture_application_product_event
+    ): self
+    {
+        $this->manufacture_application_product_event = $manufacture_application_product_event;
+        return $this;
+    }
+
+    public function getManufactureApplicationProductEvent(): ?ManufactureApplicationEventUid
+    {
+        return $this->manufacture_application_product_event;
     }
 
     public function setProfile(UserProfileUid $profile)

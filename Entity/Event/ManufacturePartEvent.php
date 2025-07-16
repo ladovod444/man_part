@@ -63,6 +63,12 @@ class ManufacturePartEvent extends EntityEvent
     #[ORM\Column(type: ManufacturePartEventUid::TYPE)]
     private ManufacturePartEventUid $id;
 
+    public function setId(ManufacturePartEventUid $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+
     /**
      * Идентификатор ManufacturePart
      */

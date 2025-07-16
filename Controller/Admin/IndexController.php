@@ -61,9 +61,6 @@ final class IndexController extends AbstractController
     ): Response
     {
 
-
-//        dd($repository->findAll());
-
         // Поиск
         $search = new SearchDTO();
 
@@ -98,10 +95,15 @@ final class IndexController extends AbstractController
                 $opens->getCategoryName(), // $opens['category_name']
             );
 
-            $filter
-                ->setCategory($CategoryProductUid)
-                ->categoryInvisible();
+            // Проверить задана ли категория
+            if (null !== $opens->getCategoryId())
+            {
+                $filter
+                    ->setCategory($CategoryProductUid)
+                    ->categoryInvisible();
+            }
         }
+
 
         $filterForm = $this
             ->createForm(

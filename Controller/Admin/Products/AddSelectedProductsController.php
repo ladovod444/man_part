@@ -30,6 +30,7 @@ use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Manufacture\Part\Entity\Products\ManufacturePartProduct;
 use BaksDev\Manufacture\Part\Messenger\CentrifugoPublish\ManufacturePartCentrifugoPublishMessage;
+use BaksDev\Manufacture\Part\Messenger\ManufacturePartProduct\ManufacturePartProductMessage;
 use BaksDev\Manufacture\Part\UseCase\Admin\AddProduct\ManufacturePartProductsDTO;
 use BaksDev\Manufacture\Part\UseCase\Admin\AddProduct\ManufacturePartProductsHandler;
 use BaksDev\Manufacture\Part\UseCase\Admin\AddProduct\ManufactureSelectionPartProductsDTO;
@@ -65,7 +66,6 @@ final class AddSelectedProductsController extends AbstractController
                 options: ['action' => $this->generateUrl('manufacture-part:admin.selected-products.add')],
             )
             ->handleRequest($request);
-
 
         /**  Получить массивы UIDs по выбранным продуктам */
         $events = [];
@@ -116,6 +116,7 @@ final class AddSelectedProductsController extends AbstractController
 
                 $handle = $ManufacturePartProductHandler->handle($ManufacturePartProductDTO);
 
+
                 if($handle instanceof ManufacturePartProduct)
                 {
                     $ManufacturePartCentrifugoPublishMessage = new ManufacturePartCentrifugoPublishMessage(
@@ -142,6 +143,25 @@ final class AddSelectedProductsController extends AbstractController
                         );
 
                     $countTotal += $ManufacturePartProductDTO->getTotal();
+
+
+                    // TODO
+                    $messageDispatch
+                        ->addClearCacheOther('wildberries-manufacture')
+                        ->addClearCacheOther('wildberries-package')
+                        ->dispatch(
+                            message: new ManufacturePartProductMessage(
+                                $handle->getProduct(),
+                                $handle->getOffer(),
+                                $handle->getVariation(),
+                                $handle->getModification(),
+                                // Добавлен ManufactureApplicationProductEvent
+                                $ManufacturePartProductDTO->getManufactureApplicationProductEvent(),
+                                $handle->getTotal(),
+
+                            ),
+                            transport: 'manufacture-part'
+                        );
 
                     continue;
                 }

@@ -78,7 +78,7 @@ final class ManufacturePartForm extends AbstractType
                 'label' => false,
                 'expanded' => false,
                 'multiple' => false,
-                'required' => true,
+                'required' => false,
             ]);
 
 
@@ -96,11 +96,13 @@ final class ManufacturePartForm extends AbstractType
         $formModifier = function(FormInterface $form, ?CategoryProductUid $category = null): void {
 
             /** @var ManufacturePartDTO $ManufacturePartDTO */
-            $ManufacturePartDTO = $form->getData();
+            //$ManufacturePartDTO = $form->getData();
 
-            $choice = !$category ? [] : $this->usersTableActionsChoice
+
+            $choice = $this->usersTableActionsChoice
                 ->forCategory($category)
                 ->getCollection();
+
 
             $form
                 ->add('action', ChoiceType::class, [
@@ -126,25 +128,11 @@ final class ManufacturePartForm extends AbstractType
             /** @var ManufacturePartDTO $ManufacturePartDTO */
             $ManufacturePartDTO = $event->getData();
 
+
             if($ManufacturePartDTO->getFixed())
             {
-                $form = $event->getForm();
 
-                if($ManufacturePartDTO->getCategory())
-                {
-                    $formModifier($event->getForm(), $ManufacturePartDTO->getCategory());
-                }
-                else
-                {
-                    $form
-                        ->add('action', ChoiceType::class, [
-                            'choices' => [],
-                            'expanded' => false,
-                            'multiple' => false,
-                            'required' => true,
-                            'disabled' => true
-                        ]);
-                }
+                $formModifier($event->getForm(), $ManufacturePartDTO->getCategory());
 
             }
         });
@@ -157,132 +145,6 @@ final class ManufacturePartForm extends AbstractType
                 $formModifier($event->getForm()->getParent(), $data ? new CategoryProductUid($data) : null);
             }
         );
-
-        // Производтсвенные партии, от которых зависит текущая
-        $values = [];
-
-        /** @var ManufacturePartChoiceResult $manufacturePartChoice */
-        foreach($this->manufacturePartChoice->findAll() as $manufacturePartChoice)
-        {
-//            $values[] = (new ManufacturePartDepends($manufacturePartChoice->getEvent()))
-//                ->setDepend(new ManufacturePartUid($manufacturePartChoice->getId()));
-
-            $manufacturePart = new ManufacturePart();
-            $manufacturePart->setId($manufacturePartChoice->getId());
-            $manufacturePart->setEvent($manufacturePartChoice->getEvent());
-            $values[] = $manufacturePart;
-        }
-
-//        dd($values);
-        // TODO
-        $builder
-            ->add('depends', ChoiceType::class, [
-                'choices' => $values,
-                //                'choices' => $this->manufacturePartChoice->findAll(),
-                'choice_value' => function(ManufacturePart|ArrayCollection|null $manufacturePart) {
-                    dump($manufacturePart);
-                    return $manufacturePart instanceof ArrayCollection ? $manufacturePart->current() : $manufacturePart?->getEvent();
-                },
-                'choice_label' => function(ManufacturePart $manufacturePart) {
-                    //                    return $manufacturePart->getActionName();
-                    //                    return $manufacturePart?->getEvent()->getAction();
-//                    return $manufacturePart instanceof ManufacturePart ? $manufacturePart?->getEvent() : '';
-                    return $manufacturePart->getEvent();
-                },
-
-                'label' => false,
-                'expanded' => false,
-//                'expanded' => true,
-                'multiple' => true,
-                //                'multiple' => false,
-                'required' => true,
-            ]);
-
-
-//        $builder
-//            ->add('depends', CollectionType::class, [
-////                'entry_type'   => ManufacturePart::class,
-//                'entry_type'   => ManufacturePartEntityForm::class,
-//
-//
-//                'entry_options' => ['label' => false],
-//                'label' => false,
-//                'by_reference' => false,
-//                'allow_delete' => true,
-//                'allow_add' => true,
-//                'prototype_name' => '__depends__',
-//
-//
-////                'entry_options'  => [
-////                    'choices' => $values,
-////                    //                'choices' => $this->manufacturePartChoice->findAll(),
-////                    'choice_value' => function(ManufacturePart|ArrayCollection|null $manufacturePart) {
-////                        dump($manufacturePart);
-////                        return $manufacturePart instanceof ArrayCollection ? $manufacturePart->current() : $manufacturePart?->getEvent();
-////                    },
-////                    'choice_label' => function(ManufacturePart $manufacturePart) {
-////                        //                    return $manufacturePart->getActionName();
-////                        //                    return $manufacturePart?->getEvent()->getAction();
-////                        //                    return $manufacturePart instanceof ManufacturePart ? $manufacturePart?->getEvent() : '';
-////                        return $manufacturePart->getEvent();
-////                    },
-////
-////                    'label' => false,
-////                    'expanded' => false,
-////                    //                'expanded' => true,
-////                    'multiple' => true,
-////                    //                'multiple' => false,
-////                    'required' => true,
-////                    ],
-//            ]);
-
-
-
-//
-        // TODO
-        $builder->get('depends')->addModelTransformer(
-            new CallbackTransformer(
-                function($depends) { // отрисовка
-
-                    return [$depends];
-
-//                    dd($depends);
-//                    return $depends instanceof ManufacturePart ? $depends->getEvent() : $depends;
-//                    return $depends instanceof ManufacturePart ? [$depends->getEvent()] : [$depends];
-                },
-                function($depends) {  // передача
-//                    dump($depends);
-//                    dump(self::class);
-//                    return $depends instanceof ManufacturePart ? $depends : current($depends); // 0197d0a4-04c2-798b-82a8-08e34e66552b
-//
-                    if ($depends instanceof ManufacturePart) {
-                        return $depends;
-                    }
-                    if (true === empty($depends)) {
-                        return null;
-                    }
-
-                    return $depends; // 0197d0a4-04c2-798b-82a8-08e34e66552b
-                }
-            ),
-            true
-        );
-
-
-//        $builder->get('depends')
-//            ->addModelTransformer(new CallbackTransformer(
-//                function ($dependsAsArray): string {
-//                    // transform the array to a string
-////                    dd($dependsAsArray);
-//                    return !empty($dependsAsArray->toArray()) ? implode(', ', $dependsAsArray->toArray()) : '';
-//                },
-//                function ($dependsAsString): array {
-//                    // transform the string back to an array
-//                    return explode(', ', $dependsAsString);
-//                }
-//            ))
-//        ;
-
 
 
         $builder->add('complete', DeliveryForm::class, ['required' => false]);

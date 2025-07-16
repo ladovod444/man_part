@@ -72,29 +72,8 @@ final class ManufacturePartDTO implements ManufacturePartEventInterface
     #[Assert\Valid]
     private ManufacturePartInvariableDTO $invariable;
 
-
     private ArrayCollection $product;
 
-
-    // Производственные партии от которых зависит текущая ПП
-    private ?ArrayCollection $depends = null;
-
-
-//    private ManufacturePartChoiceResult $depends;
-//    private ManufacturePartDepends $depends;
-
-//    public function getDepends(): ManufacturePartChoiceResult
-//    public function getDepends(): ManufacturePartDepends
-//    {
-//        return $this->depends;
-//    }
-//
-////    public function setDepends(ManufacturePartChoiceResult $depends): self
-//    public function setDepends(ManufacturePartDepends $depends): self
-//    {
-//        $this->depends = $depends;
-//        return $this;
-//    }
 
     /* Вспомогательные свойства */
 
@@ -225,65 +204,6 @@ final class ManufacturePartDTO implements ManufacturePartEventInterface
     {
         $this->product->add($product);
 
-        return $this;
-    }
-
-
-
-    // TODO
-    public function getDepends(): ?ArrayCollection
-    {
-        return $this->depends;
-    }
-//
-    public function addDepends(?ManufacturePart $depends): self
-//    public function addDepends(ManufacturePartDepends $depends): self
-    {
-        dump($depends);
-        if (null !== $depends && null !== $this->depends)
-        {
-            $this->depends->add($depends);
-        }
-
-        return $this;
-    }
-
-
-    public function setDepends(ArrayCollection|ManufacturePart|array|null $depends): self
-    {
-
-//        if (is_array($depends)) {
-//            foreach($depends as $depend) {
-//                $this->addDepends($depend);
-//            }
-//        }
-
-        if ($depends instanceof ManufacturePart) {
-            $this->addDepends($depends);
-        }
-
-        if ($depends instanceof ArrayCollection) {
-            foreach($depends as $depend) {
-                $this->addDepends($depend);
-            }
-//            $this->addDepends($depends);
-        }
-        if ($depends instanceof ArrayCollection) {
-            foreach($depends as $depend) {
-                $this->addDepends($depend);
-            }
-            //            $this->addDepends($depends);
-        }
-        else
-        {
-//            dd($depends);
-//            $this->depends = $depends;
-
-            $this->depends = new ArrayCollection();
-            foreach($depends as $depend) {
-                $this->depends->add($depend);
-            }
-        }
         return $this;
     }
 

@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Manufacture\Part\UseCase\Admin\AddProduct;
 
 
+use BaksDev\Manufacture\Part\Application\Type\Event\ManufactureApplicationEventUid;
 use BaksDev\Products\Product\Type\Event\ProductEventUid;
 use BaksDev\Products\Product\Type\Offers\Id\ProductOfferUid;
 use BaksDev\Products\Product\Type\Offers\Variation\Id\ProductVariationUid;
@@ -97,6 +98,20 @@ final class ManufacturePartProductsForm extends AbstractType
                 },
                 function($modification) {
                     return $modification ? new ProductModificationUid($modification) : null;
+                }
+            )
+        );
+
+
+        $builder->add('manufacture_application_product_event', HiddenType::class);
+
+        $builder->get('manufacture_application_product_event')->addModelTransformer(
+            new CallbackTransformer(
+                function($manufacture_application_product_event) {
+                    return $manufacture_application_product_event instanceof ManufactureApplicationEventUid ? $manufacture_application_product_event->getValue() : $manufacture_application_product_event;
+                },
+                function($manufacture_application_product_event) {
+                    return $manufacture_application_product_event ? new ManufactureApplicationEventUid($manufacture_application_product_event) : null;
                 }
             )
         );

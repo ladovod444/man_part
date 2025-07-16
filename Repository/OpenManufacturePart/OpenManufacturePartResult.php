@@ -57,8 +57,8 @@ final readonly class OpenManufacturePartResult
 
         private string $actions_id, // " => "01961691-d9a3-777e-8cc5-18ab44580a71"
         private string $actions_name, // " => "Производство футболок"
-        private string $category_id, // " => "01876af0-ddfc-70c3-ab25-5f85f55a9907"
-        private string $category_name, // " => "Triangle"
+        private ?string $category_id, // " => "01876af0-ddfc-70c3-ab25-5f85f55a9907"
+        private ?string $category_name, // " => "Triangle"
 
         private ?string $product_id, // " => null
         private ?string $product_event, // " => null
@@ -173,15 +173,15 @@ final readonly class OpenManufacturePartResult
      * CategoryId
      * @see UsersTableActionsEvent
      */
-    public function getCategoryId(): CategoryProductUid
+    public function getCategoryId(): ?CategoryProductUid
     {
-        return new CategoryProductUid($this->category_id);
+        return $this->category_id ? new CategoryProductUid($this->category_id) : null;
     }
 
     /**
      * CategoryName
      */
-    public function getCategoryName(): string
+    public function getCategoryName(): ?string
     {
         return $this->category_name;
     }
